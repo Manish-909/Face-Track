@@ -1,6 +1,5 @@
 # Face-Track
 Tracking attendance via face recognition
-College project by Manish , Bushra and Shreya (Team project)
 
 # Quick Insights
 Model used : DeepFace
