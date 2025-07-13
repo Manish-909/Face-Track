@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceTrack - Register Student</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Consistent with dashboard styles */
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4D44DB;
+            --accent: #FF6584;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gradient: linear-gradient(135deg, #6C63FF 0%, #4D44DB 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        /* Sidebar (same as dashboard) */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: white;
+            position: fixed;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            padding-top: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px;
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 5px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        /* Registration Form */
+        .registration-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #666;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        /* Image Capture Section */
+        .image-section {
+            grid-column: span 2;
+            margin-top: 20px;
+        }
+
+        .image-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .camera-container, .upload-container {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .camera-container {
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .upload-container {
+            background: rgba(255, 101, 132, 0.05);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .option-header i {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .video-preview, .image-preview {
+            width: 100%;
+            height: 200px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #camera-feed, #uploaded-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-controls, .upload-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #FF6584 0%, #F23673 100%);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 101, 132, 0.4);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .form-actions {
+            grid-column: span 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .image-options {
+                grid-template-columns: 1fr;
+            }
+
+            .image-section, .form-actions {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-user-clock"></i>
+            FaceTrack
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="Main_dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="Register_student.html"><i class="fas fa-user-plus"></i> Register Students</a></li>
+            <li><a href="Analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="Students_data.html"><i class="fas fa-users"></i> Students</a></li>
+            <li><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="Home_page.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Register New Student</h1>
+            <div class="user-profile" id="user-profile">
+                </div>
+        </div>
+
+        <div class="registration-container">
+            <div class="form-header">
+                <h2>Student Attendance</h2>
+                <p>Fill in the details and capture the student's face for recognition</p>
+            </div>
+
+            <form id="student-form">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="first-name">First Name</label>
+                        <input type="text" id="first-name" placeholder="Enter first name" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" placeholder="Enter last name" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="student-id">Student ID</label>
+                        <input type="text" id="student-id" placeholder="Enter student ID" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Enter student email">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="course">Course/Class</label>
+                        <select id="course" required>
+                            <option value="">Select course</option>
+                            <option value="BCA">BCA</option>
+                            <option value="B.Com">B.Com</option>
+                            <option value="Bsc">Bsc</option>
+                            <option value="PUC">PUC</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="year">Academic Year</label>
+                        <select id="year" required>
+                            <option value="">Select year</option>
+                            <option value="1">First Year</option>
+                            <option value="2">Second Year</option>
+                            <option value="3">Third Year</option>
+                            <option value="4">Fourth Year</option>
+                        </select>
+                    </div>
+
+                    <div class="image-section">
+                        <h3>Face Capture for Recognition</h3>
+                        <p>Choose one method to register the student's face</p>
+
+                        <div class="image-options">
+                            <div class="camera-container">
+                                <div class="option-header">
+                                    <i class="fas fa-camera"></i>
+                                    <h4>Use Camera</h4>
+                                </div>
+
+                                <div class="video-preview">
+                                    <video id="camera-feed" autoplay playsinline></video>
+                                    <canvas id="canvas" class="hidden"></canvas>
+                                </div>
+
+                                <div class="camera-controls">
+                                    <button type="button" class="btn btn-primary" id="start-camera">
+                                        <i class="fas fa-play"></i> Start
+                                    </button>
+                                    <button type="button" class="btn btn-outline" id="capture-btn" disabled>
+                                        <i class="fas fa-camera"></i> Capture
+                                    </button>
+                                    <button type="button" class="btn btn-accent hidden" id="retake-btn">
+                                        <i class="fas fa-redo"></i> Retake
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="upload-container">
+                                <div class="option-header">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <h4>Upload Photo</h4>
+                                </div>
+
+                                <div class="image-preview">
+                                    <img id="uploaded-image" src="#" alt="Preview" style="display: none;">
+                                    <div id="upload-placeholder" style="display: flex; height: 100%; align-items: center; justify-content: center; color: #999;">
+                                        <i class="fas fa-image fa-3x"></i>
+                                    </div>
+                                </div>
+
+                                <div class="upload-controls">
+                                    <button type="button" class="btn btn-accent" id="upload-btn">
+                                        <i class="fas fa-folder-open"></i> Browse
+                                    </button>
+                                    <input type="file" id="file-input" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancel-btn">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fas fa-save"></i> Register Student
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Default user data (replace with actual user session data)
+        const currentUser = {
+            name: "Admin User",
+            avatar: "https://randomuser.me/api/portraits/women/44.jpg" // Placeholder avatar
+        };
+
+        // DOM Elements
+        const studentForm = document.getElementById('student-form');
+        const cameraFeed = document.getElementById('camera-feed');
+        const canvas = document.getElementById('canvas');
+        const startCameraBtn = document.getElementById('start-camera');
+        const captureBtn = document.getElementById('capture-btn');
+        const retakeBtn = document.getElementById('retake-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadedImage = document.getElementById('uploaded-image');
+        const uploadPlaceholder = document.getElementById('upload-placeholder');
+        // Removed faceImageData as we will send the blob directly
+        // const faceImageData = document.getElementById('face-image-data');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const toast = document.getElementById('toast');
+
+        // Display user info
+        const userProfile = document.getElementById('user-profile');
+        userProfile.innerHTML = `
+            <img src="${currentUser.avatar}" alt="User">
+            <span>${currentUser.name}</span>
+        `;
+
+        // Camera stream reference
+        let cameraStream = null;
+        let capturedImageBlob = null; // Store captured image as Blob
+
+        // Show toast notification
+        function showToast(message, duration = 3000) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // Initialize camera
+        startCameraBtn.addEventListener('click', async () => {
+            try {
+                // Stop any existing stream
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                }
+
+                // Get new stream
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 640 }, // Adjusted for better performance
+                        height: { ideal: 480 } // Adjusted for better performance
+                    },
+                    audio: false
+                });
+
+                cameraFeed.srcObject = cameraStream;
+                startCameraBtn.disabled = true;
+                captureBtn.disabled = false;
+                startCameraBtn.textContent = 'Camera Active';
+                startCameraBtn.classList.remove('btn-primary');
+                startCameraBtn.classList.add('btn-outline');
+
+                // Reset any previous capture
+                capturedImageBlob = null;
+                // faceImageData.value = ''; // No longer needed
+                canvas.classList.add('hidden');
+                cameraFeed.classList.remove('hidden');
+                retakeBtn.classList.add('hidden');
+                captureBtn.classList.remove('hidden');
+
+                showToast("Camera started successfully");
+            } catch (err) {
+                console.error("Camera error:", err);
+                showToast(`Could not access camera: ${err.message}`, 5000);
+                // Reset camera button state on error
+                startCameraBtn.disabled = false;
+                captureBtn.disabled = true;
+                startCameraBtn.textContent = 'Start Camera';
+                startCameraBtn.classList.add('btn-primary');
+                startCameraBtn.classList.remove('btn-outline');
+            }
+        });
+
+        // Capture photo from camera
+        captureBtn.addEventListener('click', () => {
+            if (!cameraStream) {
+                showToast("Camera not active.");
+                return;
+            }
+
+            // Set canvas dimensions to match video
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Draw current video frame to canvas
+            ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas content to Blob
+            canvas.toBlob((blob) => {
+                capturedImageBlob = blob;
+                // faceImageData.value = 'captured'; // Indicate that an image was captured (no longer storing data URL here)
+
+                // Show captured image (on canvas) and hide video
+                canvas.classList.remove('hidden');
+                cameraFeed.classList.add('hidden');
+
+                // Toggle buttons
+                captureBtn.classList.add('hidden');
+                retakeBtn.classList.remove('hidden');
+
+                showToast("Face captured successfully");
+            }, 'image/jpeg', 0.8); // Specify image format and quality
+        });
+
+        // Retake photo
+        retakeBtn.addEventListener('click', () => {
+            canvas.classList.add('hidden');
+            cameraFeed.classList.remove('hidden');
+            retakeBtn.classList.add('hidden');
+            captureBtn.classList.remove('hidden');
+            capturedImageBlob = null;
+            // faceImageData.value = ''; // No longer needed
+        });
+
+        // Handle file upload
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.match('image.*')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uploadedImage.src = event.target.result;
+                    uploadedImage.style.display = 'block';
+                    uploadPlaceholder.style.display = 'none';
+
+                    // Store the image file as Blob
+                    capturedImageBlob = file;
+                    // faceImageData.value = 'uploaded'; // Indicate that an image was uploaded
+
+                    showToast("Image uploaded successfully");
+                };
+                reader.readAsDataURL(file); // Read as Data URL for preview
+            } else {
+                showToast("Please select a valid image file", 3000);
+            }
+        });
+
+        // Cancel button
+        cancelBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to cancel? All unsaved data will be lost.')) {
+                // Reset form
+                studentForm.reset();
+
+                // Stop camera if active
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                }
+
+                // Reset camera UI
+                cameraFeed.srcObject = null;
+                startCameraBtn.disabled = false;
+                captureBtn.disabled = true;
+                startCameraBtn.textContent = 'Start Camera';
+                startCameraBtn.classList.add('btn-primary');
+                startCameraBtn.classList.remove('btn-outline');
+                canvas.classList.add('hidden');
+                cameraFeed.classList.remove('hidden');
+                retakeBtn.classList.add('hidden');
+                captureBtn.classList.remove('hidden');
+
+                // Reset upload UI
+                uploadedImage.src = '#';
+                uploadedImage.style.display = 'none';
+                uploadPlaceholder.style.display = 'flex';
+                fileInput.value = '';
+
+                // Clear captured data
+                capturedImageBlob = null;
+                // faceImageData.value = ''; // No longer needed
+
+                showToast("Form reset successfully");
+            }
+        });
+
+        // Form submission
+        studentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate form
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const studentId = document.getElementById('student-id').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const course = document.getElementById('course').value;
+            const year = document.getElementById('year').value;
+
+            if (!firstName || !lastName || !studentId || !course || !year) {
+                showToast('Please fill in all required fields', 3000);
+                return;
+            }
+
+            if (!capturedImageBlob) { // Check if an image Blob exists
+                showToast('Please capture or upload a face image', 3000);
+                return;
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const formData = new FormData();
+                formData.append('first_name', firstName);
+                formData.append('last_name', lastName);
+                formData.append('email', email);
+                formData.append('course', course);
+                formData.append('year', year);
+                formData.append('image', capturedImageBlob, 'student_face.jpg'); // Append the image Blob
+
+                // Send to backend
+                const response = await fetch('http://localhost:5000/register_student', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) { // Check for HTTP errors
+                     const errorResult = await response.json();
+                     throw new Error(errorResult.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                showToast(`Student ${firstName} ${lastName} registered successfully! Student ID: ${result.student_id}`, 5000);
+
+                // Reset form
+                studentForm.reset();
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                }
+                cameraFeed.srcObject = null;
+                startCameraBtn.disabled = false;
+                captureBtn.disabled = true;
+                startCameraBtn.textContent = 'Start Camera';
+                startCameraBtn.classList.add('btn-primary');
+                startCameraBtn.classList.remove('btn-outline');
+                uploadedImage.src = '#';
+                uploadedImage.style.display = 'none';
+                uploadPlaceholder.style.display = 'flex';
+                fileInput.value = '';
+                capturedImageBlob = null; // Clear the stored Blob
+                canvas.classList.add('hidden');
+                cameraFeed.classList.remove('hidden');
+                retakeBtn.classList.add('hidden');
+                captureBtn.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Registration error:", error);
+                showToast(`Error: ${error.message}`, 5000);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Register Student';
+            }
+        });
+
+        // Clean up camera on page leave
+        window.addEventListener('beforeunload', () => {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // Highlight current page in sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'Main_dashboard.html';
+            const navLinks = document.querySelectorAll('.nav-menu a');
+
+            navLinks.forEach(link => {
+                const linkPage = link.getAttribute('href');
+                // Handle cases where href might be a full URL or different path
+                if (linkPage && linkPage.endsWith(currentPage)) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

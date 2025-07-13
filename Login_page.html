@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceTrack - Authentication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4D44DB;
+            --accent: #FF6584;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gradient: linear-gradient(135deg, #6C63FF 0%, #4D44DB 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+        
+        .auth-container {
+            position: relative;
+            z-index: 1;
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-header {
+            background: var(--gradient);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .auth-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            background: #f0f0f0;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .auth-tab.active {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .auth-content {
+            padding: 30px;
+        }
+        
+        .auth-form {
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        
+        .input-group i {
+            position: absolute;
+            right: 15px;
+            top: 40px;
+            color: #777;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .error-message {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Welcome to FaceTrack</h2>
+            <p>Smart Attendance System</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchTab('login')">Login</div>
+            <div class="auth-tab" onclick="switchTab('register')">Register</div>
+        </div>
+        
+        <div class="auth-content">
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <div class="success-message" id="login-success"></div>
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Enter your email">
+                    <i class="fas fa-envelope"></i>
+                    <div class="error-message" id="login-email-error"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                    <i class="fas fa-lock"></i>
+                    <div class="error-message" id="login-password-error"></div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="login()">Login</button>
+                
+                <div class="auth-footer">
+                    Don't have an account? <a href="#" onclick="switchTab('register')">Register here</a>
+                </div>
+            </div>
+            
+            <!-- Registration Form -->
+            <div id="register-form" class="auth-form">
+                <div class="success-message" id="register-success"></div>
+                <div class="input-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" placeholder="Enter your full name">
+                    <i class="fas fa-user"></i>
+                    <div class="error-message" id="register-name-error"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="Enter your email">
+                    <i class="fas fa-envelope"></i>
+                    <div class="error-message" id="register-email-error"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" placeholder="Create a password">
+                    <i class="fas fa-lock"></i>
+                    <div class="error-message" id="register-password-error"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="register-confirm">Confirm Password</label>
+                    <input type="password" id="register-confirm" placeholder="Confirm your password">
+                    <i class="fas fa-lock"></i>
+                    <div class="error-message" id="register-confirm-error"></div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="register()">Create Account</button>
+                
+                <div class="auth-footer">
+                    Already have an account? <a href="#" onclick="switchTab('login')">Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        
+        // Switch between login and register tabs
+        function switchTab(tab) {
+            if (tab === 'login') {
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
+                document.querySelector('.auth-tab:nth-child(2)').classList.remove('active');
+                clearMessages();
+            } else {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                document.querySelector('.auth-tab:nth-child(1)').classList.remove('active');
+                document.querySelector('.auth-tab:nth-child(2)').classList.add('active');
+                clearMessages();
+            }
+        }
+
+        // Clear all error/success messages
+        function clearMessages() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            document.querySelectorAll('.success-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+        }
+
+        // Validate email format
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // Validate password (min 6 chars)
+        function isValidPassword(password) {
+            return password.length >= 6;
+        }
+
+        // Register new user
+        function register() {
+            clearMessages();
+            
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            
+            let isValid = true;
+            
+            // Validate name
+            if (!name) {
+                document.getElementById('register-name-error').textContent = 'Name is required';
+                document.getElementById('register-name-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate email
+            if (!email) {
+                document.getElementById('register-email-error').textContent = 'Email is required';
+                document.getElementById('register-email-error').style.display = 'block';
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                document.getElementById('register-email-error').textContent = 'Please enter a valid email';
+                document.getElementById('register-email-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate password
+            if (!password) {
+                document.getElementById('register-password-error').textContent = 'Password is required';
+                document.getElementById('register-password-error').style.display = 'block';
+                isValid = false;
+            } else if (!isValidPassword(password)) {
+                document.getElementById('register-password-error').textContent = 'Password must be at least 6 characters';
+                document.getElementById('register-password-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate confirm password
+            if (password !== confirm) {
+                document.getElementById('register-confirm-error').textContent = 'Passwords do not match';
+                document.getElementById('register-confirm-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Check if user already exists
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userExists = users.some(user => user.email === email);
+            
+            if (userExists) {
+                document.getElementById('register-email-error').textContent = 'Email already registered';
+                document.getElementById('register-email-error').style.display = 'block';
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                name,
+                email,
+                password, // Note: In a real app, you should hash passwords!
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Show success message
+            document.getElementById('register-success').textContent = 'Registration successful! You can now login.';
+            document.getElementById('register-success').style.display = 'block';
+            
+            // Clear form
+            document.getElementById('register-name').value = '';
+            document.getElementById('register-email').value = '';
+            document.getElementById('register-password').value = '';
+            document.getElementById('register-confirm').value = '';
+            
+            // Switch to login tab after 2 seconds
+            setTimeout(() => {
+                switchTab('login');
+            }, 2000);
+        }
+
+        // Login user
+        function login() {
+            clearMessages();
+            
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            let isValid = true;
+            
+            // Validate email
+            if (!email) {
+                document.getElementById('login-email-error').textContent = 'Email is required';
+                document.getElementById('login-email-error').style.display = 'block';
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                document.getElementById('login-email-error').textContent = 'Please enter a valid email';
+                document.getElementById('login-email-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate password
+            if (!password) {
+                document.getElementById('login-password-error').textContent = 'Password is required';
+                document.getElementById('login-password-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Check user credentials
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(user => user.email === email && user.password === password);
+            
+            if (!user) {
+                document.getElementById('login-password-error').textContent = 'Invalid email or password';
+                document.getElementById('login-password-error').style.display = 'block';
+                return;
+            }
+            
+            // Store current user session
+            localStorage.setItem('currentUser', JSON.stringify({
+                name: user.name,
+                email: user.email,
+                loggedIn: true,
+                lastLogin: new Date().toISOString()
+            }));
+            
+            // Show success message
+            document.getElementById('login-success').textContent = `Welcome back, ${user.name}! Redirecting...`;
+            document.getElementById('login-success').style.display = 'block';
+            
+            // Redirect to dashboard after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'Main_dashboard.html';
+            }, 2000);
+        }
+
+        // Initialize - Check for redirect from registration
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('registered') === 'true') {
+                switchTab('login');
+                document.getElementById('login-success').textContent = 'Registration successful! Please login.';
+                document.getElementById('login-success').style.display = 'block';
+            }
+        });
+
+    </script>
+</body>
+</html>

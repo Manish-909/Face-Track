@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceTrack - Analytics</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        /* Consistent with existing styles */
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4D44DB;
+            --accent: #FF6584;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gradient: linear-gradient(135deg, #6C63FF 0%, #4D44DB 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        /* Sidebar (consistent with other pages) */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: white;
+            position: fixed;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            padding-top: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px;
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 5px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-group label {
+            margin-right: 10px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 8px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .apply-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .stat-change i {
+            margin-right: 5px;
+        }
+
+        .stat-change.up {
+            color: #4CAF50;
+        }
+
+        .stat-change.down {
+            color: #F44336;
+        }
+         .stat-change.neutral {
+            color: #666;
+        }
+
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h2 {
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-actions button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+         .chart-canvas-container {
+            flex-grow: 1;
+            position: relative;
+         }
+
+        /* Attendance Table */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f9f9f9;
+            color: #555;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .attendance-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .present {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .absent {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        .late {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+        }
+
+         /* Loading state */
+        .loading-message {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 50px;
+        }
+
+        .error-message {
+            color: #F44336;
+            text-align: center;
+            padding: 15px;
+            background: rgba(244, 67, 54, 0.1);
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-user-clock"></i>
+            FaceTrack
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="Main_dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="Register_student.html"><i class="fas fa-user-plus"></i> Register Students</a></li>
+            <li><a href="Analytics.html" class="active"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="Students_data.html"><i class="fas fa-users"></i> Students</a></li>
+            <li><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="Home_page.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Attendance Analytics</h1>
+            <div class="user-profile">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Face Recognition Technology">
+                <span>Shreya Pandey</span>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="course-filter">Course:</label>
+                <select id="course-filter">
+                    <option value="all">All Courses</option>
+                    <option value="BCA">BCA</option>
+                    <option value="B.Com">B.Com</option>
+                    <option value="Bsc">Bsc</option>
+                    <option value="PUC">PUC</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="date-from">From:</label>
+                <input type="date" id="date-from">
+            </div>
+
+            <div class="filter-group">
+                <label for="date-to">To:</label>
+                <input type="date" id="date-to">
+            </div>
+
+            <button class="apply-btn" id="apply-analytics-filters">
+                <i class="fas fa-filter"></i> Apply Filters
+            </button>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+            <div class="loading-message">Loading stats...</div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Attendance Trend</h2>
+                    <div class="chart-actions">
+                        <button data-timeframe="weekly">Weekly</button>
+                        <button data-timeframe="monthly">Monthly</button>
+                        <button data-timeframe="yearly">Yearly</button>
+                    </div>
+                </div>
+                <div class="chart-canvas-container">
+                    <canvas id="attendance-trend-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Course Comparison</h2>
+                    <div class="chart-actions">
+                        <button data-metric="attendance">By Attendance</button>
+                        <button data-metric="absences">By Absences</button>
+                    </div>
+                </div>
+                <div class="chart-canvas-container">
+                    <canvas id="course-comparison-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container" style="height: auto; margin-bottom: 30px;">
+            <div class="chart-header">
+                <h2>Recent Attendance Records</h2>
+                <div class="chart-actions">
+                    <button id="export-csv-btn">Export CSV</button>
+                    <button id="print-btn">Print</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="recent-attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" class="loading-message">Loading attendance records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        let attendanceTrendChart = null;
+        let courseComparisonChart = null;
+
+        // Function to fetch and display analytics data
+        async function loadAnalytics(course = 'all', dateFrom = '', dateTo = '') {
+            const statsGrid = document.getElementById('stats-grid');
+            const recentAttendanceTableBody = document.querySelector('#recent-attendance-table tbody');
+
+            // Show loading messages
+            statsGrid.innerHTML = '<div class="loading-message"><i class="fas fa-spinner fa-spin"></i> Loading stats...</div>';
+            recentAttendanceTableBody.innerHTML = '<tr><td colspan="6" class="loading-message"><i class="fas fa-spinner fa-spin"></i> Loading records...</td></tr>';
+
+            // Destroy existing charts before loading new data
+            if (attendanceTrendChart) attendanceTrendChart.destroy();
+            if (courseComparisonChart) courseComparisonChart.destroy();
+
+            try {
+                // Fetch analytics data
+                const analyticsResponse = await fetch(`http://localhost:5000/get_analytics?course=${course}&date_from=${dateFrom}&date_to=${dateTo}`);
+                if (!analyticsResponse.ok) {
+                    throw new Error(`Failed to load analytics: ${analyticsResponse.status}`);
+                }
+                const analyticsData = await analyticsResponse.json();
+
+                // Fetch recent attendance records
+                const recentAttendanceResponse = await fetch(`http://localhost:5000/get_recent_attendance?course=${course}&date_from=${dateFrom}&date_to=${dateTo}`);
+                if (!recentAttendanceResponse.ok) {
+                    throw new Error(`Failed to load attendance records: ${recentAttendanceResponse.status}`);
+                }
+                const recentAttendanceData = await recentAttendanceResponse.json();
+
+                // Calculate overall attendance rate if data is available
+                let overallAttendanceRate = 'N/A';
+                if (analyticsData.data && analyticsData.data.present && analyticsData.data.total) {
+                    const totalPresent = analyticsData.data.present.reduce((sum, courseData) => sum + courseData.data.reduce((a, b) => a + b, 0), 0);
+                    const totalStudents = analyticsData.data.total.reduce((sum, courseData) => sum + courseData.data.reduce((a, b) => a + b, 0), 0);
+                    overallAttendanceRate = totalStudents > 0 ? ((totalPresent / totalStudents) * 100).toFixed(1) : '0.0';
+                }
+
+                // Update Stats Cards
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <h3>Overall Attendance Rate</h3>
+                        <div class="stat-value">${overallAttendanceRate}%</div>
+                        <div class="stat-change neutral">
+                            <i class="fas fa-info-circle"></i> Data for selected period
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Students</h3>
+                        <div class="stat-value">${analyticsData.total_students || 'N/A'}</div>
+                        <div class="stat-change neutral">
+                            <i class="fas fa-info-circle"></i> Based on filters
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Records</h3>
+                        <div class="stat-value">${recentAttendanceData.length || 0}</div>
+                        <div class="stat-change neutral">
+                            <i class="fas fa-info-circle"></i> Records in table below
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Most Absent Student</h3>
+                        <div class="stat-value">${analyticsData.most_absent || 'N/A'}</div>
+                        <div class="stat-change neutral">
+                            <i class="fas fa-info-circle"></i> Requires detailed analysis
+                        </div>
+                    </div>
+                `;
+
+                // Update Attendance Trend Chart
+                const trendCtx = document.getElementById('attendance-trend-chart').getContext('2d');
+                
+                // Prepare data for the trend chart
+                const labels = analyticsData.labels || ['No Data'];
+                const datasets = [];
+                
+                if (analyticsData.data && analyticsData.data.present) {
+                    analyticsData.data.present.forEach(courseData => {
+                        datasets.push({
+                            label: `${courseData.course} Attendance`,
+                            data: courseData.data || [0],
+                            borderColor: getRandomColor(),
+                            backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        });
+                    });
+                }
+
+                attendanceTrendChart = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets.length > 0 ? datasets : [{
+                            label: 'No Data',
+                            data: [0],
+                            borderColor: '#6C63FF',
+                            backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Update Course Comparison Chart
+                const courseCtx = document.getElementById('course-comparison-chart').getContext('2d');
+                
+                // Prepare data for course comparison
+                const courseLabels = analyticsData.courses || ['No Data'];
+                const courseData = [];
+                
+                if (analyticsData.data && analyticsData.data.present) {
+                    analyticsData.data.present.forEach(course => {
+                        const avgAttendance = course.data.length > 0 ? 
+                            course.data.reduce((a, b) => a + b, 0) / course.data.length : 0;
+                        courseData.push(avgAttendance);
+                    });
+                }
+
+                courseComparisonChart = new Chart(courseCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: courseLabels,
+                        datasets: [{
+                            label: 'Average Attendance Rate (%)',
+                            data: courseData.length > 0 ? courseData : [0],
+                            backgroundColor: courseLabels.map(() => getRandomColor()),
+                            borderColor: courseLabels.map(() => '#6C63FF'),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Update Recent Attendance Table
+                recentAttendanceTableBody.innerHTML = '';
+
+                if (recentAttendanceData.length === 0) {
+                    recentAttendanceTableBody.innerHTML = '<tr><td colspan="6" class="loading-message">No attendance records found for the selected period.</td></tr>';
+                } else {
+                    recentAttendanceData.forEach(record => {
+                        const row = document.createElement('tr');
+                        const statusClass = record.status.toLowerCase();
+                        row.innerHTML = `
+                            <td>${record.date}</td>
+                            <td>${record.student_id}</td>
+                            <td>${record.first_name} ${record.last_name}</td>
+                            <td>${record.course || 'N/A'}</td>
+                            <td><span class="attendance-badge ${statusClass}">${record.status}</span></td>
+                            <td>${record.time || '-'}</td>
+                        `;
+                        recentAttendanceTableBody.appendChild(row);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading analytics data:', error);
+                statsGrid.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> Error loading analytics: ${error.message}</div>`;
+                recentAttendanceTableBody.innerHTML = `<tr><td colspan="6" class="error-message"><i class="fas fa-exclamation-circle"></i> Error loading records: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Helper function to generate random colors for charts
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Export to CSV functionality
+        document.getElementById('export-csv-btn').addEventListener('click', async function() {
+            try {
+                const courseFilter = document.getElementById('course-filter').value;
+                const dateFrom = document.getElementById('date-from').value;
+                const dateTo = document.getElementById('date-to').value;
+                
+                const response = await fetch(`http://localhost:5000/export_attendance?course=${courseFilter}&date_from=${dateFrom}&date_to=${dateTo}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to export data');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `attendance_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                alert('Attendance data exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert(`Export failed: ${error.message}`);
+            }
+        });
+
+        // Print functionality
+        document.getElementById('print-btn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Event listener for Apply Filters button
+        document.getElementById('apply-analytics-filters').addEventListener('click', () => {
+            const courseFilter = document.getElementById('course-filter').value;
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            loadAnalytics(courseFilter, dateFrom, dateTo);
+        });
+
+        // Set default dates and load initial analytics data
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const lastMonth = new Date();
+            lastMonth.setMonth(today.getMonth() - 1);
+
+            document.getElementById('date-from').valueAsDate = lastMonth;
+            document.getElementById('date-to').valueAsDate = today;
+
+            // Load initial analytics data with default filters
+            loadAnalytics('all', lastMonth.toISOString().split('T')[0], today.toISOString().split('T')[0]);
+
+            // Highlight current page in sidebar
+            const currentPage = window.location.pathname.split('/').pop() || 'Main_dashboard.html';
+            const navLinks = document.querySelectorAll('.nav-menu a');
+
+            navLinks.forEach(link => {
+                const linkPage = link.getAttribute('href');
+                if (linkPage && linkPage.endsWith(currentPage)) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceTrack - Student Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Consistent with existing styles */
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4D44DB;
+            --accent: #FF6584;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gradient: linear-gradient(135deg, #6C63FF 0%, #4D44DB 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        /* Sidebar (consistent with other pages) */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: white;
+            position: fixed;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            padding-top: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px;
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 5px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-group label {
+            margin-right: 10px;
+            font-weight: 500;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 8px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px 15px 8px 35px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 10px center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Student Cards */
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .student-header {
+            height: 100px;
+            background: var(--gradient);
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .student-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+            bottom: -40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            /* Added for image avatars */
+            overflow: hidden;
+        }
+
+        .student-avatar img {
+             width: 100%;
+             height: 100%;
+             object-fit: cover;
+        }
+
+        .student-body {
+            padding: 50px 20px 20px;
+            text-align: center;
+        }
+
+        .student-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--secondary);
+        }
+
+        .student-id {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .student-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .detail-item {
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            color: #888;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .student-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.edit {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .action-btn.edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: rgba(255, 101, 132, 0.1);
+            color: var(--accent);
+        }
+
+        .action-btn.delete:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .search-bar {
+                max-width: 100%;
+            }
+        }
+
+        /* Loading state */
+        .loading-message {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-user-clock"></i>
+            FaceTrack
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="Main_dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="Register_student.html"><i class="fas fa-user-plus"></i> Register Students</a></li>
+            <li><a href="Analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="Students_data.html"><i class="fas fa-users"></i> Students</a></li>
+            <li><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="Home_page.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Student Management</h1>
+            <div class="user-profile">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
+                <span>Dr. Sarah Johnson</span>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="course-filter">Course:</label>
+                <select id="course-filter">
+                    <option value="all">All Courses</option>
+                    <option value="BCA">BCA</option>
+                    <option value="B.Com">B.Com</option>
+                    <option value="Bsc">Bsc</option>
+                    <option value="PUC">PUC</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="year-filter">Year:</label>
+                <select id="year-filter">
+                    <option value="all">All Years</option>
+                    <option value="1">First Year</option>
+                    <option value="2">Second Year</option>
+                    <option value="3">Third Year</option>
+                    <option value="4">Fourth Year</option>
+                </select>
+            </div>
+
+            <div class="filter-group search-bar">
+                <input type="text" id="search-input" placeholder="Search students...">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="apply-filters-btn">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <button class="btn btn-outline" id="reset-filters-btn">
+                    <i class="fas fa-sync-alt"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="students-grid">
+            <div class="loading-message">Loading students...</div>
+        </div>
+    </div>
+
+    <script>
+        // Function to fetch and display students
+        async function loadStudents() {
+            const studentsGrid = document.querySelector('.students-grid');
+            studentsGrid.innerHTML = '<div class="loading-message"><i class="fas fa-spinner fa-spin"></i> Loading students...</div>'; // Show loading message
+
+            try {
+                const response = await fetch('http://localhost:5000/get_students');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const students = await response.json();
+
+                studentsGrid.innerHTML = ''; // Clear loading message
+
+                if (students.length === 0) {
+                    studentsGrid.innerHTML = '<div class="loading-message">No students found.</div>';
+                    return;
+                }
+
+                students.forEach(student => {
+                    // Create student card element
+                    const card = document.createElement('div');
+                    card.className = 'student-card';
+                    card.setAttribute('data-id', student.id); // Store student ID on the card
+
+                    // Generate avatar initials
+                    const firstLetter = student.first_name ? student.first_name.charAt(0).toUpperCase() : '';
+                    const lastLetter = student.last_name ? student.last_name.charAt(0).toUpperCase() : '';
+                    const avatarInitials = firstLetter + lastLetter;
+
+                    card.innerHTML = `
+                        <div class="student-header">
+                            <div class="student-avatar">${avatarInitials}</div>
+                        </div>
+                        <div class="student-body">
+                            <h3 class="student-name">${student.first_name} ${student.last_name}</h3>
+                            <p class="student-id">ID: ${student.id}</p>
+
+                            <div class="student-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Course</span>
+                                    <span class="detail-value">${student.course || 'N/A'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Year</span>
+                                    <span class="detail-value">${student.year || 'N/A'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Attendance Records</span>
+                                    <span class="detail-value">${student.attendance_count || 0}</span>
+                                </div>
+                            </div>
+
+                            <div class="student-actions">
+                                <div class="action-btn edit" title="Edit" data-id="${student.id}">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="action-btn delete" title="Delete" data-id="${student.id}">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    studentsGrid.appendChild(card);
+                });
+
+                // Add event listeners for edit/delete buttons (placeholders for now)
+                document.querySelectorAll('.action-btn.edit').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const studentId = e.currentTarget.getAttribute('data-id');
+                        // Implement edit functionality (e.g., open a modal, navigate to edit page)
+                        alert(`Edit student with ID: ${studentId}`);
+                    });
+                });
+
+                document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const studentId = e.currentTarget.getAttribute('data-id');
+                        if (confirm(`Are you sure you want to delete student with ID: ${studentId}?`)) {
+                            // Implement delete functionality (call backend API)
+                            deleteStudent(studentId);
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading students:', error);
+                studentsGrid.innerHTML = `<div class="loading-message" style="color: red;">Error loading students: ${error.message}</div>`;
+            }
+        }
+
+        // Placeholder delete student function (needs backend implementation)
+        async function deleteStudent(studentId) {
+             try {
+                 // Assuming a DELETE endpoint exists in your backend like /delete_student/<student_id>
+                 const response = await fetch(`http://localhost:5000/delete_student/${studentId}`, {
+                     method: 'DELETE'
+                 });
+
+                 if (!response.ok) {
+                     const errorResult = await response.json();
+                     throw new Error(errorResult.error || `HTTP error! status: ${response.status}`);
+                 }
+
+                 // If successful, remove the student card from the DOM
+                 const cardToRemove = document.querySelector(`.student-card[data-id="${studentId}"]`);
+                 if (cardToRemove) {
+                     cardToRemove.remove();
+                     alert(`Student with ID ${studentId} deleted successfully.`);
+                 }
+
+             } catch (error) {
+                 console.error('Error deleting student:', error);
+                 alert(`Failed to delete student: ${error.message}`);
+             }
+        }
+
+
+        // Filter functionality
+        function applyFilters() {
+            const courseFilter = document.getElementById('course-filter').value.toLowerCase();
+            const yearFilter = document.getElementById('year-filter').value;
+            const searchInput = document.getElementById('search-input').value.toLowerCase();
+            const studentCards = document.querySelectorAll('.student-card');
+
+            studentCards.forEach(card => {
+                const course = card.querySelector('.detail-item:nth-child(1) .detail-value').textContent.toLowerCase();
+                const year = card.querySelector('.detail-item:nth-child(2) .detail-value').textContent;
+                const name = card.querySelector('.student-name').textContent.toLowerCase();
+                const id = card.querySelector('.student-id').textContent.toLowerCase();
+
+                const courseMatch = courseFilter === 'all' || course.includes(courseFilter);
+                const yearMatch = yearFilter === 'all' || year === yearFilter;
+                const searchMatch = searchInput === '' ||
+                                   name.includes(searchInput) ||
+                                   id.includes(searchInput);
+
+                if (courseMatch && yearMatch && searchMatch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('course-filter').value = 'all';
+            document.getElementById('year-filter').value = 'all';
+            document.getElementById('search-input').value = '';
+            applyFilters(); // Apply filters to show all students
+        }
+
+
+        // Event listeners for filters and search
+        document.getElementById('apply-filters-btn').addEventListener('click', applyFilters);
+        document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
+
+        // Optional: Apply search filter as you type (can be resource intensive on large datasets)
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+
+
+        // Initial load of students when the page is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStudents(); // Fetch and display students
+
+            // Highlight current page in sidebar
+            const currentPage = window.location.pathname.split('/').pop() || 'Main_dashboard.html';
+            const navLinks = document.querySelectorAll('.nav-menu a');
+
+            navLinks.forEach(link => {
+                const linkPage = link.getAttribute('href');
+                 // Handle cases where href might be a full URL or different path
+                if (linkPage && linkPage.endsWith(currentPage)) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
